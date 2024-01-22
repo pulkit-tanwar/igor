@@ -16,10 +16,15 @@
 
 package com.netflix.spinnaker.igor.scm.gitlab.client;
 
+import com.netflix.spinnaker.igor.scm.gitlab.client.model.Commit;
 import com.netflix.spinnaker.igor.scm.gitlab.client.model.CompareCommitsResponse;
+import com.netflix.spinnaker.igor.scm.gitlab.client.model.GetFileContentResponse;
+import com.netflix.spinnaker.igor.scm.gitlab.client.model.ListDirectoryResponse;
+import java.util.List;
 import java.util.Map;
 import retrofit.http.GET;
 import retrofit.http.Path;
+import retrofit.http.Query;
 import retrofit.http.QueryMap;
 
 /** Interface for interacting with a GitLab REST API https://docs.gitlab.com/ce/api/README.html */
@@ -31,4 +36,26 @@ public interface GitLabClient {
       @Path("projectKey") String projectKey,
       @Path("repositorySlug") String repositorySlug,
       @QueryMap Map queryMap);
+
+  /** https://docs.gitlab.com/ee/api/repositories.html#list-repository-tree */
+  @GET("/api/v4/projects/{projectKey}%2F{repositorySlug}/repository/tree")
+  List<ListDirectoryResponse> listDirectory(
+      @Path("projectKey") String projectKey,
+      @Path("repositorySlug") String repositorySlug,
+      @Query("path") String path,
+      @Query("ref") String ref);
+
+  @GET("/api/v4/projects/{projectKey}%2F{repositorySlug}/repository/files/{path}")
+  GetFileContentResponse getFileContent(
+      @Path("projectKey") String projectKey,
+      @Path("repositorySlug") String repositorySlug,
+      @Path(value = "path", encode = false) String path,
+      @Query("ref") String ref);
+
+  /** https://docs.gitlab.com/ee/api/commits.html#get-a-single-commit */
+  @GET("/api/v4/projects/{projectKey}%2F{repositorySlug}/repository/commits/{sha}")
+  Commit commitInfo(
+      @Path("projectKey") String projectKey,
+      @Path("repositorySlug") String repositorySlug,
+      @Path("sha") String sha);
 }
